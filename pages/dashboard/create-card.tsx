@@ -1,11 +1,12 @@
 import { useUser } from "@supabase/supabase-auth-helpers/react";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Layout from "../../components/layout";
-import { newCard } from "../../lib/profile";
+import { getCards, getProfile, newCard } from "../../lib/profile";
 import { Card } from "../../typings/cards";
 import * as Yup from "yup"
+import { CardsResponse } from "../../typings/cards";
 
 
 export default function Cards() {
@@ -13,10 +14,22 @@ export default function Cards() {
 	const {user, isLoading} = useUser();
   const [page, setPage] = useState(1);
   const [data, setData] = useState(null);
+	const [submitting, setSubmitting] = useState({failed: false, submitting: false})
   const { starter } = router.query;
+
+	const [profile, setProfile] = useState<null | CardsResponse>(null);
+
+  useEffect(() => {
+    (async function prof() {
+      const profile = await getCards(user);
+      setProfile(profile);
+    })();
+  }, [user]);
   if (!router.query) {
     return null;
   }
+
+	
 
   return (
     <Layout>
@@ -29,11 +42,12 @@ export default function Cards() {
   function One() {
 		return (
 			<Formik 
-			initialValues={{ name: "", design: "" }} 
-			onSubmit={(data: Card) => newCard(user, {name: data.name, design: data.design})}
+			//@ts-ignore-error
+			initialValues={{ name: "", design: starter }} 
+			onSubmit={(data: Card) => {setSubmitting({failed: false, submitting: true}), submitData({name: data.name, design: data.design, id: profile.data.cardsID + 1})}}
 			validationSchema={Yup.object({
 				name: Yup.string().required("This field is required"),
-				design: Yup.string()
+				design: Yup.string().required()
 			})}
 			>
 				<Form className="flex flex-col">
@@ -41,16 +55,30 @@ export default function Cards() {
 					<Field name="name" type="text" className="max-w-sm rounded-lg" />
 					<ErrorMessage name="name" />
 					<label>
-              <Field type="radio" name="design" value="wedding" checked={starter == "wedding"} />
+              <Field type="radio" name="design" value="wedding" />
               Wedding
             </label>
             <label>
-              <Field type="radio" name="design" value="birthday" checked={starter == "birthday"} />
+              <Field type="radio" name="design" value="birthday" />
               Birthday
             </label>
-						<button type="submit">submit</button>
+						<button type="submit" className="" disabled={submitting.submitting} >{submitting.failed ? "Failed" : submitting.submitting ? "Creating Card..." : "Create Your Card"}</button>
 				</Form>
 			</Formik>
 		)
   }
+
+	function submitData(data: Card) {
+
+		const card = newCard(user, {name: data.name, design: data.design, id: data.id}, profile.data, profile.cards)
+		if (!card) {
+			setSubmitting({failed: true, submitting: false})
+		} else {
+			setSubmitting({failed: false, submitting: false})
+			alert("created card")
+		}
+		
+
+
+	}
 }

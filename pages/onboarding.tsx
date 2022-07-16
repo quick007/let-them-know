@@ -26,6 +26,7 @@ export default function Onboarding() {
         username,
         website,
         updated_at: new Date(),
+        cardsID: 0
       };
 
       let { error } = await supabase.from("profiles").upsert(updates, {
