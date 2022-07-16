@@ -34,7 +34,7 @@ export default function Dash() {
           </div>
         </div>
         : 
-        <h2 className="mb-4 text-4xl font-bold text-gray-50">You aren't logged in!</h2>
+        <h2 className="mb-4 text-4xl font-bold text-gray-50">You aren&apos;t logged in!</h2>
         }
         <div className="absolute top-0 right-0 left-0 -z-10 h-96 bg-gradient-to-b from-cyan-900"></div>
       </div>
@@ -44,7 +44,9 @@ export default function Dash() {
         <h2 className="mb-4 text-4xl font-bold text-gray-900 ">Saved Cards</h2>
         <div className="flex space-x-10">
           {profile.cards.map((card) => 
+          <span key={card.id}>
           <SavedCard name={card.name} design={card.design} />
+          </span>
           )}
         </div>
       </div>

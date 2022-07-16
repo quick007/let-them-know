@@ -8,6 +8,7 @@ import Layout from "../components/layout";
 
 export default function Profile() {
   const { user, error, isLoading } = useUser();
+  const [profile, setProfile] = useState<null | ProfileResponse>(null);
   const router = useRouter();
   if (isLoading) {
     return (
@@ -17,7 +18,7 @@ export default function Profile() {
     );
   }
   if (user) {
-    const [profile, setProfile] = useState<null | ProfileResponse>(null);
+    
     useEffect(() => {
       (async function prof() {
         const profile = await getProfile(user);
