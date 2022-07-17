@@ -10,6 +10,13 @@ export default function Profile() {
   const { user, error, isLoading } = useUser();
   const [profile, setProfile] = useState<null | ProfileResponse>(null);
   const router = useRouter();
+  useEffect(() => {
+    (async function prof() {
+      const profile = await getProfile(user);
+      console.log(profile, "profile");
+      setProfile(profile);
+    })();
+  }, [user]);
   if (isLoading) {
     return (
       <Layout>
@@ -19,13 +26,7 @@ export default function Profile() {
   }
   if (user) {
     
-    useEffect(() => {
-      (async function prof() {
-        const profile = await getProfile(user);
-        console.log(profile, "profile");
-        setProfile(profile);
-      })();
-    }, [user]);
+    
 
     if (profile == null) {
       return (
