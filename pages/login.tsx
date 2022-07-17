@@ -4,6 +4,7 @@ import { useUser } from "@supabase/supabase-auth-helpers/react";
 import { useRouter } from "next/router";
 import { Form, Formik, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
+import Layout from "../components/layout";
 
 export default function Auth() {
   const [sent, setSent] = useState(false);
@@ -11,7 +12,11 @@ export default function Auth() {
   const router = useRouter();
 
   if (!user || isLoading) {
-    return <Login />;
+    return (
+<Layout>
+  <Login />
+</Layout>
+    )
   }
 
   if (user) {
@@ -20,9 +25,8 @@ export default function Auth() {
 
   function Login() {
     return (
-      <div className="row flex-center flex">
-        <div className="col-6 form-widget">
-          <p className="description">
+      <div className="flex flex-col items-center">
+          <p className="mb-4">
             Sign in via magic link with your email below
           </p>
           <Formik
@@ -32,23 +36,23 @@ export default function Auth() {
                 {
                   email: data.email,
                 },
-                { redirectTo: "/onbording" }
+                { redirectTo: (process.env.NODE_ENV == "development" ? "http://localhost:3000/onbording" : process.env.ONBOARDING_LINK) }
               ),
                 setSent(true);
             }}
             validationSchema={Yup.object({
               email: Yup.string().email().required("This field is required"),
             })}
+          
           >
-            <Form>
-              <Field type="email" name="email" placeholder="Your email" />
-              <ErrorMessage name="email" />
-              <button type="submit" disabled={sent}>
+            <Form className=" flex flex-col max-w-md">
+              <Field type="email" name="email" placeholder="Your email" className="rounded-xl " />
+              <ErrorMessage name="email" className="" />
+              <button type="submit" disabled={sent || isLoading} className="rounded mt-2 px-4 py-1 disabled:bg-cyan-8w00 bg-cyan-600 disabled:text-gray-100 text-gray-50 font-medium ">
                 {!sent ? "Send link" : "sent"}
               </button>
             </Form>
           </Formik>
-        </div>
       </div>
     );
   }

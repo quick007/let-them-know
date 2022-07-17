@@ -12,9 +12,11 @@ export default function Profile() {
   const router = useRouter();
   useEffect(() => {
     (async function prof() {
-      const profile = await getProfile(user);
-      console.log(profile, "profile");
-      setProfile(profile);
+      if (user) {
+        const profile = await getProfile(user);
+        console.log(profile, "profile");
+        setProfile(profile);
+      }
     })();
   }, [user]);
   if (isLoading) {

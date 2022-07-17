@@ -38,7 +38,7 @@ export default function Layout(props: {
       <>
         <div className="flex  min-h-screen flex-col">
           <Navbar loading={true} position={props.nav} />
-          <div className="my-10 flex-1">{props.children}</div>
+          <div className={`${props.nav == "fixed" ? "" : "my-10"} flex-1`}>{props.children}</div>
           <Footer />
         </div>
       </>
@@ -63,9 +63,9 @@ export default function Layout(props: {
           props.position == "fixed" ? "fixed right-0 left-0" : "sticky top-3"
         }`}
       >
-        <div>
+        <Link href="/">
           <h1 className="text-2xl font-bold">Let Them Know</h1>
-        </div>
+        </Link>
         <div className="flex">
           <h2 className="my-auto mr-6 text-center text-lg font-medium">
             Support
@@ -110,7 +110,7 @@ export default function Layout(props: {
                               active
                                 ? "bg-cyan-600 text-white"
                                 : "text-gray-900"
-                            } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
+                            } group flex w-full items-center rounded-md px-2 py-2 my-1 text-sm`}
                           >
                             Profile
                           </button>
@@ -123,7 +123,7 @@ export default function Layout(props: {
                               active
                                 ? "bg-cyan-600 text-white"
                                 : "text-gray-900"
-                            } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
+                            } group flex w-full items-center rounded-md px-2 py-2  my-1 text-sm`}
                           >
                             Other Stuff
                           </button>
@@ -135,7 +135,7 @@ export default function Layout(props: {
                           <button
                             className={`${
                               active ? "bg-red-500 text-white" : "text-red-500"
-                            } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
+                            } group flex w-full items-center rounded-md px-2 py-2 mt-1 text-sm`}
                             onClick={() => supabaseClient.auth.signOut()}
                           >
                             Log Out
@@ -163,6 +163,6 @@ export default function Layout(props: {
     );
   }
   function Footer() {
-    return <div className="h-16 bg-blue-500"></div>;
+    return <div className="h-16 bg-blue-500">footer soon&#x2122;</div>;
   }
 }

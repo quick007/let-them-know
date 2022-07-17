@@ -14,8 +14,10 @@ export default function Onboarding() {
 
   useEffect(() => {
     (async function prof() {
+      if (user) {
       const profile = await getProfile(user);
       setProfile(profile);
+      }
     })();
   }, [user]);
 

@@ -3,7 +3,7 @@ import { ErrorMessage, Field, Form, Formik } from "formik";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import Layout from "../../components/layout";
-import { getCards, getProfile, newCard } from "../../lib/profile";
+import { getCards, newCard } from "../../lib/cards";
 import { Card } from "../../typings/cards";
 import * as Yup from "yup"
 import { CardsResponse } from "../../typings/cards";
@@ -15,7 +15,7 @@ export default function Cards() {
   const [page, setPage] = useState(1);
   const [data, setData] = useState(null);
 	const [submitting, setSubmitting] = useState({failed: false, submitting: false})
-  const { starter } = router.query;
+  const { starter, editID } = router.query;
 
 	const [profile, setProfile] = useState<null | CardsResponse>(null);
 

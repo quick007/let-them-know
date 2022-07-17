@@ -2,7 +2,7 @@ import { useUser } from "@supabase/supabase-auth-helpers/react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import Layout from "../../components/layout";
-import { getCards, getProfile } from "../../lib/profile";
+import { getCards } from "../../lib/cards";
 import { CardsResponse } from "../../typings/cards";
 
 export default function Dash() {
@@ -10,9 +10,11 @@ export default function Dash() {
   const [profile, setProfile] = useState<null | CardsResponse>(null)
   useEffect(() => {
     (async function prof() {
+      if (user) {
       const profile = await getCards(user);
       setProfile(profile);
-      console.log(profile)
+      
+      }
     })();
   }, [user]);
 
@@ -38,14 +40,14 @@ export default function Dash() {
         }
         <div className="absolute top-0 right-0 left-0 -z-10 h-96 bg-gradient-to-b from-cyan-900"></div>
       </div>
-      {profile.cards ?
+      {profile && profile.cards ?
       
       <div className="mx-auto mt-10 w-full max-w-screen-xl">
         <h2 className="mb-4 text-4xl font-bold text-gray-900 ">Saved Cards</h2>
         <div className="flex space-x-10">
           {profile.cards.map((card) => 
           <span key={card.id}>
-          <SavedCard name={card.name} design={card.design} />
+          <SavedCard name={card.name} design={card.design} id={card.id} />
           </span>
           )}
         </div>
@@ -68,13 +70,13 @@ export default function Dash() {
     );
   }
 
-  function SavedCard(props: { name: string; design: string }) {
+  function SavedCard(props: { name: string; design: string; id: number }) {
     return (
-      <Link href="/dashboard/create-card?starter=wedding">
-        <div className="group flex h-64 w-48 cursor-pointer flex-col items-center justify-center rounded-xl bg-gray-400/20 ring-1 ring-gray-800/20 transition duration-300 hover:-translate-y-1 hover:shadow-xl">
+      <Link href={`/card?creator=${user.id}&id=${props.id}`}>
+        <a className="group flex h-64 w-48 cursor-pointer flex-col items-center justify-center rounded-xl bg-gray-400/20 ring-1 ring-gray-800/20 transition duration-300 hover:-translate-y-1 hover:shadow-xl">
           <h2 className="mt-2 text-lg font-medium">{props.name}</h2>
           <h3 className="mt-2 text-sm font-medium">{props.design}</h3>
-        </div>
+        </a>
       </Link>
     );
   }
