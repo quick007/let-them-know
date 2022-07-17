@@ -29,11 +29,12 @@ export default function CardPage() {
         if (profile.success) setProfile(profile);
       }
     })();
-  }, [user]);
+		function findCard(card: Card) {
+			return card.id == Number.parseInt(id as string);
+		}
+  }, [user, creator, id]);
 
-  function findCard(card: Card) {
-    return card.id == Number.parseInt(id as string);
-  }
+  
 
   if (!router.query) {
     return null;
@@ -64,7 +65,7 @@ export default function CardPage() {
                     cy="12"
                     r="10"
                     stroke="currentColor"
-                    stroke-width="4"
+                    strokeWidth="4"
                   ></circle>
                   <path
                     className="opacity-75"
