@@ -29,12 +29,10 @@ export default function CardPage() {
         if (profile.success) setProfile(profile);
       }
     })();
-		function findCard(card: Card) {
-			return card.id == Number.parseInt(id as string);
-		}
+    function findCard(card: Card) {
+      return card.id == Number.parseInt(id as string);
+    }
   }, [user, creator, id]);
-
-  
 
   if (!router.query) {
     return null;
@@ -78,7 +76,7 @@ export default function CardPage() {
             )}
           </div>
           <Link href="/">
-            <a className="group mx-auto mt-10 mb-32 flex w-max cursor-pointer flex-col items-center justify-center rounded-lg bg-gray-900/20 px-2 py-1 ring-1 ring-gray-800/30 transition duration-300 hover:-translate-y-1 hover:bg-gray-900/30 hover:shadow-2xl">
+            <a className="group mx-auto mt-10 mb-32 flex w-max cursor-pointer flex-col items-center justify-center rounded-lg bg-gray-900/20 px-2 py-1 ring-1 ring-gray-800/30 transition duration-300 hover:bg-gray-900/30 hover:shadow-2xl">
               <h3 className="text-sm font-medium text-gray-50 transition duration-300 group-hover:font-semibold">
                 Made with Let Them Know
               </h3>
@@ -92,7 +90,7 @@ export default function CardPage() {
   function Profile() {
     if (profile) {
       return (
-        <div className="ml-auto h-16 flex">
+        <div className="ml-auto flex h-16">
           <Menu as="div" className="relative mt-auto pr-3">
             <Menu.Button className="">
               <img
@@ -144,14 +142,15 @@ export default function CardPage() {
                 <hr className="border-top-2 border-white/25" />
                 <Menu.Item>
                   {({ active }) => (
-                    <button
-                      className={`${
-                        active ? "bg-red-500 text-white" : "text-red-500"
-                      } group mt-1 flex w-full items-center rounded-md px-2 py-2 text-sm`}
-                      onClick={() => supabaseClient.auth.signOut()}
-                    >
-                      Log Out
-                    </button>
+                    <Link href="/api/auth/logout">
+                      <button
+                        className={`${
+                          active ? "bg-red-500 text-white" : "text-red-500"
+                        } group mt-1 flex w-full items-center rounded-md px-2 py-2 text-sm`}
+                      >
+                        Log Out
+                      </button>
+                    </Link>
                   )}
                 </Menu.Item>
               </Menu.Items>
@@ -160,6 +159,6 @@ export default function CardPage() {
         </div>
       );
     }
-    return <div className="h-16"></div>
+    return <div className="h-16"></div>;
   }
 }

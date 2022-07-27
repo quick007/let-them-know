@@ -55,4 +55,3 @@ export async function getProfileByID(userID: number): Promise<ProfileResponse> {
   }
   return { success: false };
 }
-

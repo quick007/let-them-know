@@ -5,6 +5,8 @@ import Link from "next/link";
 import { getProfile } from "../lib/profile";
 import { ProfileResponse } from "../typings/profile";
 import Layout from "../components/layout";
+import Button from "../components/button";
+import Tooltip from "../components/tooltip";
 
 export default function Profile() {
   const { user, error, isLoading } = useUser();
@@ -27,9 +29,6 @@ export default function Profile() {
     );
   }
   if (user) {
-    
-    
-
     if (profile == null) {
       return (
         <Layout>
@@ -43,6 +42,20 @@ export default function Profile() {
       return (
         <Layout nav="sticky">
           account made
+          <div className="mt-8 ml-8 flex items-center space-x-10">
+            <Button color="cyan" use="primary">
+              Main{" "}
+            </Button>
+            <Tooltip text="Click me">
+              <Button color="cyan" use="secondary">
+                2nd{" "}
+              </Button>
+            </Tooltip>
+            <Button color="cyan" use="tertiary">
+              3rd
+              <Tooltip text="Also click me" />
+            </Button>
+          </div>
           <div className="mb-[200rem]"></div>
         </Layout>
       );

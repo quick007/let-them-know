@@ -13,6 +13,7 @@ import {
 } from "react";
 import { getProfile } from "../lib/profile";
 import { ProfileResponse } from "../typings/profile";
+import Button from "./button";
 
 export default function Layout(props: {
   children:
@@ -23,22 +24,34 @@ export default function Layout(props: {
     | ReactFragment
     | ReactPortal;
   nav?: "fixed" | "sticky";
+  scrollbar?: boolean;
 }) {
   const { user, error, isLoading } = useUser();
   const [profile, setProfile] = useState<null | ProfileResponse>(null);
   useEffect(() => {
     (async function prof() {
-      const profile = await getProfile(user);
-      setProfile(profile);
+      if (user) {
+        const profile = await getProfile(user);
+        setProfile(profile);
+      }
     })();
   }, [user]);
 
-  if (!profile || isLoading) {
+  if ((!profile && user) || isLoading) {
     return (
       <>
-        <div className="flex  min-h-screen flex-col">
+        <div
+          className={
+            "flex  min-h-screen flex-col " +
+            (props.scrollbar
+              ? "overflow-y-auto" /* yes I relize that doesn't work with the */
+              : "")
+          }
+        >
           <Navbar loading={true} position={props.nav} />
-          <div className={`${props.nav == "fixed" ? "" : "my-10"} flex-1`}>{props.children}</div>
+          <div className={`${props.nav == "fixed" ? "" : "my-10"} flex-1`}>
+            {props.children}
+          </div>
           <Footer />
         </div>
       </>
@@ -59,22 +72,26 @@ export default function Layout(props: {
   function Navbar(props: { loading?: boolean; position?: "sticky" | "fixed" }) {
     return (
       <div
-        className={`z-40 mx-2 mt-3 flex h-14 items-center justify-between rounded-2xl bg-gray-900/10  px-2 shadow-lg ring-1 ring-gray-500/20 backdrop-blur-lg backdrop-filter lg:mx-6 lg:px-4  ${
+        className={`z-40 mx-2 mt-3 flex h-14 items-center justify-between rounded-2xl bg-gray-500/10  px-2   ring-gray-500/20 backdrop-blur-lg backdrop-filter lg:mx-6 lg:px-4  ${
           props.position == "fixed" ? "fixed right-0 left-0" : "sticky top-3"
         }`}
       >
         <Link href="/">
-          <h1 className="text-2xl font-bold">Let Them Know</h1>
+          <a>
+            <h1 className="text-2xl font-bold">Let Them Know</h1>
+          </a>
         </Link>
         <div className="flex">
           <h2 className="my-auto mr-6 text-center text-lg font-medium">
             Support
           </h2>
-          {!props.loading && profile.success ? (
+          {!props.loading && profile && profile.success ? (
             <>
               <Link href="/dashboard">
-                <a className="my-auto mr-8 text-center text-lg font-medium">
-                  Dashboard
+                <a className="my-auto">
+                  <Button color="cyan" use="secondary" className=" mr-6">
+                    Dashboard
+                  </Button>
                 </a>
               </Link>
 
@@ -95,7 +112,7 @@ export default function Layout(props: {
                     leaveFrom="transform opacity-100 scale-100"
                     leaveTo="transform opacity-0 scale-95"
                   >
-                    <Menu.Items className="absolute -right-1 -mt-9 w-48 rounded-md bg-gray-200/50 p-1 shadow-xl ring-1 ring-black ring-opacity-5 backdrop-blur-xl backdrop-filter focus:outline-none">
+                    <Menu.Items className="absolute -right-1 -mt-9 w-48 rounded-md bg-gray-300/50 p-1 shadow-xl ring-1 ring-black ring-opacity-5 backdrop-blur-xl backdrop-filter focus:outline-none">
                       <h2 className="py-1 px-2">
                         Logged in as{" "}
                         <span className="font-medium">
@@ -110,7 +127,7 @@ export default function Layout(props: {
                               active
                                 ? "bg-cyan-600 text-white"
                                 : "text-gray-900"
-                            } group flex w-full items-center rounded-md px-2 py-2 my-1 text-sm`}
+                            } group my-1 flex w-full items-center rounded-md px-2 py-2 text-sm`}
                           >
                             Profile
                           </button>
@@ -123,25 +140,30 @@ export default function Layout(props: {
                               active
                                 ? "bg-cyan-600 text-white"
                                 : "text-gray-900"
-                            } group flex w-full items-center rounded-md px-2 py-2  my-1 text-sm`}
+                            } group my-1 flex w-full items-center rounded-md px-2  py-2 text-sm`}
                           >
                             Other Stuff
                           </button>
                         )}
                       </Menu.Item>
                       <hr className="border-top-2 border-white/25" />
-                      <Menu.Item>
-                        {({ active }) => (
-                          <button
-                            className={`${
-                              active ? "bg-red-500 text-white" : "text-red-500"
-                            } group flex w-full items-center rounded-md px-2 py-2 mt-1 text-sm`}
-                            onClick={() => supabaseClient.auth.signOut()}
-                          >
-                            Log Out
-                          </button>
-                        )}
-                      </Menu.Item>
+                      <Link href="/api/auth/logout">
+                        <a>
+                          <Menu.Item>
+                            {({ active }) => (
+                              <button
+                                className={`${
+                                  active
+                                    ? "bg-red-500 text-white"
+                                    : "text-red-500"
+                                } group mt-1 flex w-full items-center rounded-md px-2 py-2 text-sm`}
+                              >
+                                Log Out
+                              </button>
+                            )}
+                          </Menu.Item>
+                        </a>
+                      </Link>
                     </Menu.Items>
                   </Transition>
                 </Menu>
@@ -162,6 +184,7 @@ export default function Layout(props: {
       </div>
     );
   }
+
   function Footer() {
     return <div className="h-16 bg-blue-500">footer soon&#x2122;</div>;
   }

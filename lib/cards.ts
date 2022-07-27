@@ -20,7 +20,11 @@ export async function getCards(user: User): Promise<CardsResponse> {
     if (data) {
       return {
         success: true,
-        data: { username: data.username, website: data.website, cardsID: data.cardsID },
+        data: {
+          username: data.username,
+          website: data.website,
+          cardsID: data.cardsID,
+        },
         cards: data.cards,
       };
     }
@@ -33,18 +37,22 @@ export async function getCards(user: User): Promise<CardsResponse> {
 /**
 Creates a new card. You'll need to call getCard and pass some of it's info into this function
 */
-export async function newCard(user: User, card: Card, data: { username: string; website: string, cardsID: number },
-  cards: Card[]): Promise<boolean> {
+export async function newCard(
+  user: User,
+  card: Card,
+  data: { username: string; website: string; cardsID: number },
+  cards: Card[]
+): Promise<boolean> {
   try {
-    console.log(cards, "cardds")
+    console.log(cards, "cardds");
     if (cards) {
-      cards.push(card)
+      cards.push(card);
     }
     const updates = {
       id: user.id,
-      cards: (cards ? cards : [card]),
+      cards: cards ? cards : [card],
       updated_at: new Date(),
-      cardsID: data.cardsID + 1
+      cardsID: data.cardsID + 1,
     };
 
     let { error } = await supabase.from("profiles").upsert(updates, {
@@ -53,11 +61,10 @@ export async function newCard(user: User, card: Card, data: { username: string; 
 
     if (error) {
       throw error;
-      return false
+      return false;
     }
   } catch (error) {
-    alert(error.message);
-    return false
+    return false;
   }
 }
 
@@ -79,7 +86,11 @@ export async function getCardsByID(userID: string): Promise<CardsResponse> {
     if (data) {
       return {
         success: true,
-        data: { username: data.username, website: data.website, cardsID: data.cardsID },
+        data: {
+          username: data.username,
+          website: data.website,
+          cardsID: data.cardsID,
+        },
         cards: data.cards,
       };
     }

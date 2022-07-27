@@ -15,8 +15,8 @@ export default function Onboarding() {
   useEffect(() => {
     (async function prof() {
       if (user) {
-      const profile = await getProfile(user);
-      setProfile(profile);
+        const profile = await getProfile(user);
+        setProfile(profile);
       }
     })();
   }, [user]);
@@ -28,7 +28,7 @@ export default function Onboarding() {
         username,
         website,
         updated_at: new Date(),
-        cardsID: 0
+        cardsID: 0,
       };
 
       let { error } = await supabase.from("profiles").upsert(updates, {
@@ -37,9 +37,11 @@ export default function Onboarding() {
 
       if (error) {
         throw error;
+      } else {
+        router.push("/dashboard");
       }
     } catch (error) {
-      alert(error.message);
+    } finally {
     }
   }
 
@@ -79,7 +81,7 @@ export default function Onboarding() {
               name="website"
             ></Field>
             <ErrorMessage name="username"></ErrorMessage>
-            <button type="submit">Submitt</button>
+            <button type="submit">Submit</button>
           </Form>
         </Formik>
       </>
