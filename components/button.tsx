@@ -1,10 +1,10 @@
 import type { ReactNode } from "react";
 
 export default function Button(props: {
-  color: "cyan";
+  color: "cyan" | "light-cyan";
   use: "primary" | "secondary" | "tertiary";
   className?: string;
-  onClick?: Function;
+  onClick?: () => void;
   children?: ReactNode;
   disabled?: boolean;
 }) {
@@ -13,7 +13,13 @@ export default function Button(props: {
     case "cyan":
       color =
         "bg-cyan-600 hover:bg-cyan-700 text-gray-50 hover:text-gray-100 disabled:bg-cyan-700 disabled:text-gray-300";
+break;
+        case "light-cyan":
+      color =
+        " text-gray-700/80 hover:bg-cyan-700/10 hover:text-gray-700 disabled:bg-cyan-700 disabled:text-gray-300 ring ring-cyan-700/50";
+        break;
   }
+  
   let use: string = "";
   switch (props.use) {
     case "primary":
@@ -29,8 +35,8 @@ export default function Button(props: {
   }
   return (
     <button
-      className={`${use} ${props.className} ${color} rounded-md font-medium  transition`}
-      onClick={() => props.onClick}
+      className={`${use} ${props.className} ${color} rounded-md font-medium transition focus:outline-none`}
+      onClick={props.onClick}
       disabled={props.disabled || false}
     >
       {props.children}

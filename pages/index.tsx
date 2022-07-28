@@ -55,6 +55,9 @@ export default function Profile() {
               3rd
               <Tooltip text="Also click me" />
             </Button>
+            <Button color="light-cyan" use="secondary">
+                2nd{" "}
+              </Button>
           </div>
           <div className="mb-[200rem]"></div>
         </Layout>

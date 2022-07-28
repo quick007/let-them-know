@@ -2,17 +2,27 @@ import { useUser } from "@supabase/supabase-auth-helpers/react";
 import Link from "next/link";
 import { Fragment, useEffect, useState } from "react";
 import Layout from "../../components/layout";
-import { getCards } from "../../lib/cards";
-import { CardsResponse } from "../../typings/cards";
-import { EyeIcon, EyeOffIcon, PencilIcon } from "@heroicons/react/outline";
+import { getCards, getCardsByID } from "../../lib/cards";
+import { CardsResponse, Card } from "../../typings/cards";
+import {
+  EyeIcon,
+  EyeOffIcon,
+  PencilIcon,
+  SelectorIcon,
+} from "@heroicons/react/outline";
 import { useRouter } from "next/router";
 import Tooltip from "../../components/tooltip";
-import { Transition, Dialog } from "@headlessui/react";
+import { Transition, Dialog, Listbox } from "@headlessui/react";
 import Button from "../../components/button";
 
 export default function Dash() {
   const { user, isLoading } = useUser();
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
+  const [selectedCardData, setSelectedCardData] = useState<null | {
+    id: number;
+    visible: boolean;
+  }>(null);
+
   const router = useRouter();
   const [profile, setProfile] = useState<null | CardsResponse>(null);
   useEffect(() => {
@@ -23,6 +33,8 @@ export default function Dash() {
       }
     })();
   }, [user]);
+
+ 
 
   if (isLoading) {
     return null;
@@ -108,10 +120,13 @@ export default function Dash() {
           </a>
         </Link>
         <div className="invisible absolute right-0 bottom-0 ml-auto mr-1.5 mb-1.5 flex translate-y-4 cursor-pointer transition group-hover:visible group-hover:translate-y-0">
-          <Tooltip text="Visability Settings">
+          <Tooltip text="Visibility Settings">
             <div
               className="relative flex items-center justify-center"
-              onClick={() => alert(1)}
+              onClick={() => (
+                setSelectedCardData({ id: props.id, visible: props.public }),
+                setOpen(true)
+              )}
             >
               {props.public ? (
                 <EyeIcon className="peer fixed h-6 w-6 p-1 text-gray-800" />
@@ -134,6 +149,26 @@ export default function Dash() {
     );
   }
   function MyDialog() {
+    const options: { id: 0 | 1, name: "Yes" | "No", unavailable: boolean }[] = [
+      { id: 0, name: "Yes", unavailable: false },
+      { id: 1, name: "No", unavailable: false },
+    ];
+    const [selectedOption, setSelectedOption] = useState(
+      options[selectedCardData ? (!selectedCardData.visible ? 1 : 0) : 0]
+    );
+    const [saving, setSaving] = useState(false);
+
+    async function updateCardData(visible: boolean) {
+      setSaving(true)
+      const cards = profile.cards
+      let card: Card = profile.cards.find(findCard)
+
+      
+    }
+    function findCard(card: Card) {
+      return card.id == selectedCardData.id;
+    }
+    
     return (
       <Transition appear show={open} as={Fragment}>
         <Dialog
@@ -164,24 +199,80 @@ export default function Dash() {
                 leaveFrom="opacity-100 scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-xl bg-white p-6 text-left align-middle shadow-xl transition-all">
                   <Dialog.Title
                     as="h3"
                     className="text-lg font-medium text-gray-900"
                   >
-                    Email Sent
+                    Visibility Settings
                   </Dialog.Title>
-                  <div className="mt-2">
-                    <p className="text-sm text-gray-500">
-                      Please check your email for a magic link to log in. Make
-                      sure to check your spam folder if its not in your inbox.
+                  <section className="">
+                    <p className="text-sm text-gray-600">
+                      Change the visibility settings and copy a sharing link for
+                      your card.
                     </p>
-                  </div>
+                    <div className="mt-4">
+                      <Listbox
+                        value={selectedOption}
+                        onChange={setSelectedOption}
+                      >
+                        <h4 className="mb-1.5 font-medium text-gray-800">
+                          Visibility
+                        </h4>
+                        <Listbox.Button className="flex  w-full items-center justify-between rounded-lg bg-gray-400/20 py-1.5 pl-3 pr-2 font-medium text-gray-800 ring-1 ring-gray-800/20 backdrop-blur">
+                          {selectedOption.name}
+                          <SelectorIcon className="h-5 w-5" />
+                        </Listbox.Button>
+                        <Transition
+                          enter="transition duration-100 ease-out"
+                          enterFrom="transform scale-95 opacity-0"
+                          enterTo="transform scale-100 opacity-100"
+                          leave="transition duration-75 ease-out"
+                          leaveFrom="transform scale-100 opacity-100"
+                          leaveTo="transform scale-95 opacity-0"
+                        >
+                          <Listbox.Options className="fixed right-0 left-0 mt-2 rounded-lg bg-gray-200/80 p-2  font-medium text-gray-800 ring-1 ring-gray-800/20 backdrop-blur">
+                            {options.map((option) => (
+                              <Listbox.Option
+                                key={option.id}
+                                value={option}
+                                disabled={option.unavailable}
+                                className="cursor-pointer rounded-lg px-2 py-1 hover:bg-gray-900/10 "
+                              >
+                                {option.name}
+                              </Listbox.Option>
+                            ))}
+                          </Listbox.Options>
+                        </Transition>
+                      </Listbox>
+                      <p className="mt-1 text-xs italic text-gray-500">
+                        This card is{" "}
+                        {!selectedOption.id
+                          ? "public to anyone with the link"
+                          : "visible only to you"}
+                      </p>
+                    </div>
+                  </section>
 
-                  <div className="mt-4">
+                  <div className="mt-6 flex items-center space-x-4">
                     <Button
                       color="cyan"
                       use="secondary"
+                      onClick={() =>
+                         (selectedCardData.visible &&
+                              selectedOption.name == "Yes") ||
+                            (!selectedCardData.visible &&
+                              selectedOption.name == "No")
+                            ? setOpen(false)
+                            : updateCardData(!selectedOption.id)
+                      }
+                      disabled={saving}
+                    >
+                      {saving ? "Saving..." : "Save"}
+                    </Button>
+                    <Button
+                      color="light-cyan"
+                      use="tertiary"
                       onClick={() => setOpen(false)}
                     >
                       Close
