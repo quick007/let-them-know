@@ -204,8 +204,9 @@ export default function Dash() {
         setOpen(false);
       }
     }
-
+    if (user && user.id && selectedCardData && selectedCardData.id) {
     return (
+      
       <Transition appear show={open} as={Fragment}>
         <Dialog as="div" className="relative z-50" onClose={() => close()}>
           <Transition.Child
@@ -334,6 +335,12 @@ export default function Dash() {
           </div>
         </Dialog>
       </Transition>
+      
     );
+                    }
+                    else {
+                      return null
+                    }
+
   }
 }
