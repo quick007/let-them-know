@@ -14,6 +14,7 @@ import { useRouter } from "next/router";
 import Tooltip from "../../components/tooltip";
 import { Transition, Dialog, Listbox } from "@headlessui/react";
 import Button from "../../components/button";
+import { supabase } from "../../lib/init";
 
 export default function Dash() {
   const { user, isLoading } = useUser();
@@ -33,8 +34,6 @@ export default function Dash() {
       }
     })();
   }, [user]);
-
- 
 
   if (isLoading) {
     return null;
@@ -120,7 +119,7 @@ export default function Dash() {
           </a>
         </Link>
         <div className="invisible absolute right-0 bottom-0 ml-auto mr-1.5 mb-1.5 flex translate-y-4 cursor-pointer transition group-hover:visible group-hover:translate-y-0">
-          <Tooltip text="Visibility Settings">
+          <Tooltip text="Visibility &#x26; Sharing Settings">
             <div
               className="relative flex items-center justify-center"
               onClick={() => (
@@ -149,7 +148,7 @@ export default function Dash() {
     );
   }
   function MyDialog() {
-    const options: { id: 0 | 1, name: "Yes" | "No", unavailable: boolean }[] = [
+    const options: { id: 0 | 1; name: "Yes" | "No"; unavailable: boolean }[] = [
       { id: 0, name: "Yes", unavailable: false },
       { id: 1, name: "No", unavailable: false },
     ];
@@ -157,25 +156,58 @@ export default function Dash() {
       options[selectedCardData ? (!selectedCardData.visible ? 1 : 0) : 0]
     );
     const [saving, setSaving] = useState(false);
+    const [copied, setCopied] = useState(false)
 
     async function updateCardData(visible: boolean) {
-      setSaving(true)
-      const cards = profile.cards
-      let card: Card = profile.cards.find(findCard)
+      const cards = JSON.parse(JSON.stringify(profile.cards));
+      try {
+        setSaving(true);
 
-      
+        let cardIndex: number = cards.findIndex(findCard);
+
+        cards[cardIndex].public = visible;
+      } catch (error) {
+        console.log(error);
+      } finally {
+        try {
+          const updates = {
+            id: user.id,
+            cards: cards,
+            updated_at: new Date(),
+          };
+
+          const { error } = await supabase.from("profiles").upsert(updates, {
+            returning: "minimal",
+          });
+
+          if (error) {
+            throw error;
+          }
+        } catch (error) {
+          console.log(error);
+        } finally {
+          setProfile({
+            ...profile,
+            cards,
+          });
+          setOpen(false);
+          setSaving(false);
+        }
+      }
     }
     function findCard(card: Card) {
       return card.id == selectedCardData.id;
     }
-    
+
+    function close() {
+      if (!saving) {
+        setOpen(false);
+      }
+    }
+
     return (
       <Transition appear show={open} as={Fragment}>
-        <Dialog
-          as="div"
-          className="relative z-50"
-          onClose={() => setOpen(false)}
-        >
+        <Dialog as="div" className="relative z-50" onClose={() => close()}>
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-300"
@@ -211,15 +243,32 @@ export default function Dash() {
                       Change the visibility settings and copy a sharing link for
                       your card.
                     </p>
-                    <div className="mt-4">
+                    <div className="mt-4 -z-10   ">
+                      <h4 className="mb-1.5 font-medium text-gray-800">
+                        Sharing
+                      </h4>
+                      <div className="flex justify-between rounded-lg bg-gray-200 px-2 font-medium text-gray-800 ring-1 ring-gray-800/20 group cursor-pointer hover:ring-cyan-600/50"
+                      onClick={() => (setCopied(true), navigator.clipboard.writeText(`${process.env.NODE_ENV == "production" ? process.env.NEXT_PUBLIC_WEB_LINK : "http://localhost:3000"}/card?creator=${user.id}&id=${selectedCardData.id}`), setTimeout(() => setCopied(false), 800))}
+                      >
+                        <p className="relative overflow-x-hidden whitespace-nowrap border-r border-gray-800/20 group-hover:border-cyan-600/50 py-1.5">
+                          {`${process.env.NODE_ENV == "production" ? process.env.NEXT_PUBLIC_WEB_LINK : "http://localhost:3000"}/card?creator=${user.id}&id=${selectedCardData.id}`}
+                          <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-r from-transparent via-gray-200 to-gray-200"></div>
+                        </p>
+                        <div className=" shrink-0 grow  py-1.5 pl-2 relative">
+                          <span className="invisible">Copy Link!!!</span>
+                          <span className={`absolute left-0 right-0 text-center ml-2 px-1 rounded-lg hover:bg-cyan-300/20 ${copied ? "text-blue-600 bg-cyan-300/30" : ""}`}>{!copied ? "Copy Link" : "Copied!"}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="mt-4 z-10">
                       <Listbox
                         value={selectedOption}
                         onChange={setSelectedOption}
                       >
                         <h4 className="mb-1.5 font-medium text-gray-800">
-                          Visibility
+                          Visible
                         </h4>
-                        <Listbox.Button className="flex  w-full items-center justify-between rounded-lg bg-gray-400/20 py-1.5 pl-3 pr-2 font-medium text-gray-800 ring-1 ring-gray-800/20 backdrop-blur">
+                        <Listbox.Button className="flex  w-full items-center justify-between rounded-lg bg-gray-200 py-1.5 pl-3 pr-2 font-medium text-gray-800 ring-1 ring-gray-800/20 backdrop-blur">
                           {selectedOption.name}
                           <SelectorIcon className="h-5 w-5" />
                         </Listbox.Button>
@@ -231,13 +280,13 @@ export default function Dash() {
                           leaveFrom="transform scale-100 opacity-100"
                           leaveTo="transform scale-95 opacity-0"
                         >
-                          <Listbox.Options className="fixed right-0 left-0 mt-2 rounded-lg bg-gray-200/80 p-2  font-medium text-gray-800 ring-1 ring-gray-800/20 backdrop-blur">
+                          <Listbox.Options className="absolute right-0 z-[100] left-0 mt-2 rounded-lg bg-gray-200/80 p-2  font-medium text-gray-800 ring-1 ring-gray-800/20 backdrop-blur">
                             {options.map((option) => (
                               <Listbox.Option
                                 key={option.id}
                                 value={option}
                                 disabled={option.unavailable}
-                                className="cursor-pointer rounded-lg px-2 py-1 hover:bg-gray-900/10 "
+                                className="cursor-pointer rounded-lg px-2 py-1 hover:bg-gray-900/10 z-10"
                               >
                                 {option.name}
                               </Listbox.Option>
@@ -252,6 +301,7 @@ export default function Dash() {
                           : "visible only to you"}
                       </p>
                     </div>
+                    
                   </section>
 
                   <div className="mt-6 flex items-center space-x-4">
@@ -259,12 +309,12 @@ export default function Dash() {
                       color="cyan"
                       use="secondary"
                       onClick={() =>
-                         (selectedCardData.visible &&
-                              selectedOption.name == "Yes") ||
-                            (!selectedCardData.visible &&
-                              selectedOption.name == "No")
-                            ? setOpen(false)
-                            : updateCardData(!selectedOption.id)
+                        (selectedCardData.visible &&
+                          selectedOption.name == "Yes") ||
+                        (!selectedCardData.visible &&
+                          selectedOption.name == "No")
+                          ? setOpen(false)
+                          : updateCardData(!selectedOption.id)
                       }
                       disabled={saving}
                     >

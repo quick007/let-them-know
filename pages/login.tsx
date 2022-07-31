@@ -45,7 +45,7 @@ export default function Auth() {
                   redirectTo:
                     process.env.NODE_ENV == "development"
                       ? "http://localhost:3000/onboarding"
-                      : process.env.ONBOARDING_LINK,
+                      : process.env.NEXT_PUBLIC_ONBOARDING_LINK,
                 }
               ),
                 setSent(true),
