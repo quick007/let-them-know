@@ -111,7 +111,7 @@ export default function Dash() {
     return (
       <div className="group relative">
         <Link href={`/card?creator=${user.id}&id=${props.id}`}>
-          <a className="group flex h-64 w-48 cursor-pointer flex-col items-center justify-center rounded-xl bg-gray-400/20 ring-1 ring-gray-800/20 transition duration-300 group-hover:bg-gray-500/20 group-hover:shadow-xl">
+          <a className="group flex h-64 w-48 cursor-pointer flex-col items-center justify-center rounded-xl bg-gray-400/20 ring-1 ring-gray-800/20 base-style-hover">
             <div className="my-auto -translate-y-1 transition group-hover:-translate-y-5">
               <h2 className="mt-2 text-lg font-medium">{props.name}</h2>
               <h3 className="mt-2 text-sm font-medium">{props.design}</h3>

@@ -5,7 +5,7 @@ export default function Button(props: {
   use: "primary" | "secondary" | "tertiary";
   className?: string;
   onClick?: () => void;
-  children?: ReactNode;
+  children: ReactNode;
   disabled?: boolean;
 }) {
   let color: string = "";

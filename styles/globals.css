@@ -1,3 +1,23 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.base-style {
+	@apply bg-gray-200 text-gray-800 ring-1 ring-gray-800/20;
+}
+
+.base-style-hover {
+	@apply hover:bg-gray-500/20 hover:shadow-xl transition duration-300;
+}
+
+.scroll::-webkit-scrollbar {
+  height: 0.5rem;
+}
+ 
+
+ 
+.scroll::-webkit-scrollbar-thumb {
+  background-color: rgb(197, 197, 197);
+	border-radius: 1em;
+	@apply shadow-lg;
+}

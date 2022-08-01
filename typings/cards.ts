@@ -12,3 +12,18 @@ export interface CardsResponse {
   cards?: Card[];
   error?: string;
 }
+
+export interface CreateCardData {
+  page1: {
+    celebrating: string;
+    theme: string;
+  },
+  page2: {
+    for: string;
+    messageID: number;
+    message: string;
+    signature: string;
+    giftCard: boolean;
+
+  }
+}
