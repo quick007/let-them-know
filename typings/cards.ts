@@ -15,8 +15,8 @@ export interface CardsResponse {
 
 export interface CreateCardData {
   page1: {
-    celebrating: string;
-    theme: string;
+    theme: number | null;
+    design: number | null;
   },
   page2: {
     for: string;
@@ -25,5 +25,5 @@ export interface CreateCardData {
     signature: string;
     giftCard: boolean;
 
-  }
+  } | null
 }

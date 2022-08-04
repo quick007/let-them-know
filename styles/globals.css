@@ -21,3 +21,7 @@
 	border-radius: 1em;
 	@apply shadow-lg;
 }
+
+.form-input {
+	@apply border-none focus:ring-gray-800/25 focus:bg-gray-100 hover:shadow-lg focus:shadow-lg transition duration-300 rounded-lg font-medium;
+}

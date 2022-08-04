@@ -7,6 +7,8 @@ export default function Button(props: {
   onClick?: () => void;
   children: ReactNode;
   disabled?: boolean;
+  type?: "button" | "submit" | "reset"
+  
 }) {
   let color: string = "";
   switch (props.color) {
@@ -38,6 +40,7 @@ break;
       className={`${use} ${props.className} ${color} rounded-md font-medium transition focus:outline-none`}
       onClick={props.onClick}
       disabled={props.disabled || false}
+      type={props.type}
     >
       {props.children}
     </button>
