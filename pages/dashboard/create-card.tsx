@@ -6,7 +6,7 @@ import Layout from "../../components/layout";
 import { getCards, newCard } from "../../lib/cards";
 import { Card, CreateCardData } from "../../typings/cards";
 import * as Yup from "yup";
-import { CardsResponse } from "../../typings/cards";
+import { CardsResponse, Message } from "../../typings/cards";
 import Button from "../../components/button";
 import * as CardDesigns from "../../lib/themes-and-designs";
 import Image from "next/image";
@@ -66,7 +66,7 @@ export default function Cards() {
               <div className="flex flex-col space-y-10">
                 <Desktop />
               </div>
-              <div className="mt-24 mb-10 ml-auto flex !hidden">
+              <div className="mt-24 mb-10 ml-auto tflex !hidden">
                 {page != 1 ? (
                   <Button
                     color="light-cyan"
@@ -128,6 +128,7 @@ export default function Cards() {
                   onClick={() =>
                     setData({ ...data, page1: { ...data.page1, theme: v.id } })
                   }
+                  key={v.id}
                 >
                   {v.name}
                   {v.iconPath ? <Image src={v.iconPath} layout="fill" /> : ""}
@@ -191,30 +192,79 @@ export default function Cards() {
       );
     }
     function Two() {
+      const messages: Message[] = [
+        {
+          id: 2, //always start at 2, 0 is reserved for no message and 1 is custom
+          short: "get well soon:tm:",
+          message: "I hope you get well soon!"
+        }
+      ]
+      function fixData(data: {
+        for: string;
+        message: string;
+        messageID: string;
+        signature: string;
+      }) {
+        let message = ""
+        let messageID = 0
+        if (data.message && data.messageID == "1") {
+          messageID = 1
+          message = data.message
+        } else {
+          messageID = parseInt(data.messageID) 
+          message = (messages.find((v) => v.id == messageID)).message
+        }
+
+        return {
+          ...data,
+          messageID,
+          message
+        }
+      }
+
+      
+
       return (
         <>
           <Formik
             initialValues={{
               for: data.page2 ? data.page2.for : "",
               message: "", //will be either a number or a custom message
-              messageID: "",
+              messageID: "0",
               signature: data.page2 ? data.page2.signature : "",
-              giftCard: data.page2 ? data.page2.giftCard : false,
+              //giftCard: data.page2 ? data.page2.giftCard : false,
+            }}
+            validationSchema={Yup.object({
+              for: Yup.string().min(3).max(20).required(),
+              
+            })}
+            validate={(values) => {
+              const errors: any = {}
+              if (parseInt(values.messageID) == 0) {
+                errors.messageID = "You must select an option"
+              }
+              if (parseInt(values.messageID) == 1 && values.message == "") {
+                errors.messageID = "You must input some text"
+              }
+              return errors
             }}
             onSubmit={(v) =>
               setData({
                 ...data,
-                //@ts-ignore-error
+                
                 page2: {
-                  ...v,
+                  ...fixData(v),
+                  giftCard: false,
                 },
               })
             }
           >
-            {({ values }) => (
+            {({ values, errors }) => (
               <Form className="flex flex-col space-y-10">
                 <label className="flex flex-col text-xl font-bold">
-                  Who's this card for?
+                  <span>
+                    Who&apos;s this card for? <span className="text-red-500">*</span>
+                  </span>
                   <Field
                     name="for"
                     type="text"
@@ -223,88 +273,93 @@ export default function Cards() {
                 </label>
                 <div>
                   <div id="create-msg" className="mb-3 text-xl font-bold">
-                    Create your message
+                    <span>
+                      Create your message{" "}
+                      <span className="text-red-500">*</span>
+                    </span>
                   </div>
                   <div
                     role="group"
                     aria-labelledby="create-msg"
-                    className=" flex flex-wrap gap-5 font-medium"
+                    className=" mb-4 flex flex-wrap gap-5 font-medium"
                   >
-                    <Tooltip text="Fill in a longer message here">
+                    {messages.map((v) => (
+                    <Tooltip text={v.message} key={v.id}>
                       <label
                         className="base-style relative flex items-center rounded-md px-2 py-1"
                         onClick={() =>
                           values.message == "Fill in longer message here"
                         }
                       >
-                        Get well soon!
+                        {v.short}
                         <Field
                           name="messageID"
                           type="radio"
-                          value="0"
+                          value={v.id.toString()}
                           className="base-style form-input ml-3 h-3 w-3 p-0 !text-gray-600 "
                         />
                       </label>
                     </Tooltip>
-                    <Field
-                      name="messageID"
-                      type="radio"
-                      value="1"
-                      className="base-style form-input "
-                    />
+                    ))}
+                    
                     <Tooltip text="Create your own message!">
-                      <label
-                        className="base-style relative flex items-center rounded-md px-2 py-1"
-                      >
+                      <label className="base-style relative flex items-center rounded-md px-2 py-1">
                         Custom Message
                         <Field
                           name="messageID"
                           type="radio"
-                          value="2"
+                          value="1"
                           className="base-style form-input ml-3 h-3 w-3 p-0 !text-gray-600 "
                         />
                       </label>
                     </Tooltip>
                   </div>
-                  {values.messageID == "2" ? (
-                    <label className="flex max-w-sm flex-col">
+                  {values.messageID == "1" ? (
+                    <label className="flex max-w-lg flex-col">
                       <Field
                         name="message"
                         type="text"
-                        className="base-style form-input mt-8 "
+                        className="base-style form-input "
                         placeholder="Type a custom message here!"
                       />
                     </label>
-                  ) : values.messageID != "" ? (
-                    <div className="flex max-w-sm flex-col">
-                      <div className="base-style form-input mt-8">
+                  ) : values.messageID != "0" ? (
+                    <div className="flex max-w-lg flex-col">
+                      <div className="base-style form-input">
                         Fill in longer message here
                       </div>
                     </div>
-                  ) : 
-                  
-                  <div className="flex max-w-sm flex-col">
-                      <div className="base-style form-input mt-8 !text-gray-500">
+                  ) : (
+                    <div className="flex max-w-lg flex-col">
+                      <div className="base-style form-input !text-gray-500">
                         Select an option above to populate this box!
                       </div>
-                    </div>}
+                    </div>
+                  )}
                 </div>
                 <label className="flex flex-col text-xl font-bold">
                   Add Signature
                   <Field
-                    name=""
+                    name="signature"
                     type="text"
                     className="base-style form-input mt-3 max-w-sm"
                   />
+                  {values.signature == "" ? (
+                    <span className="mt-1 text-sm font-normal italic text-gray-500">
+                      Leave this blank if you don&apos;t want to include a signature{" "}
+                    </span>
+                  ) : (
+                    ""
+                  )}
                 </label>
-                <label className="flex flex-col text-xl font-bold">
+                {/* <label className="flex flex-col text-xl font-bold">
                   Make this card a gift
                   <Field
                     name=""
                     type="text"
                     className="base-style form-input mt-3 max-w-sm"
                   />
-                </label>
+                </label> */}
                 <div className="mt-24 mb-10 ml-auto flex">
                   <Buttons />
                 </div>

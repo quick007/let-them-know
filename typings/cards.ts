@@ -27,3 +27,9 @@ export interface CreateCardData {
 
   } | null
 }
+
+export interface Message {
+  id: number,
+  short: string,
+  message: string
+}
